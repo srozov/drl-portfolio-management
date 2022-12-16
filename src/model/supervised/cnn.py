@@ -5,7 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D
 from keras.models import load_model
-from keras.optimizers import Adam
+from keras.optimizer_v1 import Adam
 
 from ..base_model import BaseModel
 from utils.data import normalize
@@ -53,10 +53,13 @@ class StockCNN(BaseModel):
                                optimizer=Adam(lr=1e-3),
                                metrics=['accuracy'])
             print('Built model from scratch')
+
         self.model._make_predict_function()
         self.graph = tf.get_default_graph()
 
-    def train(self, X_train, Y_train, X_val, Y_val, verbose=True):
+    def train(self, train_dataset, validation_dataset, verbose=True):
+        X_train, Y_train = train_dataset
+        X_val, Y_val = validation_dataset
         continue_train = True
         while continue_train:
             self.model.fit(X_train, Y_train, batch_size=128, epochs=10, validation_data=(X_val, Y_val),
@@ -67,7 +70,8 @@ class StockCNN(BaseModel):
             continue_train = input("True to continue train, otherwise stop training...\n")
         print('Finish.')
 
-    def evaluate(self, X_test, Y_test, verbose=False):
+    def evaluate(self, test_dataset, verbose=False):
+        X_test, Y_test = test_dataset
         return self.model.evaluate(X_test, Y_test, verbose=verbose)
 
     def predict(self, X_test, verbose=False):

@@ -3,6 +3,7 @@ Modified from https://github.com/wassname/rl-portfolio-management/blob/master/sr
 """
 from __future__ import print_function
 
+import copy
 from pprint import pprint
 
 import numpy as np
@@ -40,6 +41,30 @@ def max_drawdown(returns):
     peak = returns.max()
     trough = returns[returns.argmax():].min()
     return (trough - peak) / (peak + eps)
+
+
+class DataGeneratorSQL(object):
+    """
+    DataGenerator operating on tf SQL Dataset
+    """
+
+    def __init__(self, dataset, asset_names, steps=730, window_length=50, start_idx=0, start_date=None):
+        """
+
+        Args:
+            dataset: (num_stocks, timestamp, 5) open, high, low, close, volume
+            asset_names: a list of length num_stocks with assets name
+            steps: the total number of steps to simulate, default is 2 years
+            window_length: observation window, must be less than 50
+            start_date: the date to start. Default is None and random pick one.
+                        It should be a string e.g. '2012-08-13'
+        """
+
+        self.steps = steps + 1
+        self.window_length = window_length
+        self.start_idx = start_idx
+        self.start_date = start_date
+        self.asset_names = copy.copy(asset_names)
 
 
 class DataGenerator(object):
